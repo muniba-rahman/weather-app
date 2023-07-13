@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>Weather Application</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div class="weather-app">
+        <div class="container">
+            <h3 class="brand">the weather</h3>
+            <div>
+                <h1 class="temp">16°</h1>
+                <div class="city-time">
+                    <h1 class="name">Karachi</h1>
+                    <small>
+                        <span class="time">06:09</span>
+                        -
+                        <span class="date">Wednesday Jun 06</span>
+                    </small>
+                </div>
+                <div class="weather">
+                    <!-- <img src="/pics/sun.png" alt="icon" class="icon" width="50" height="50"> -->
+                    <!-- <i class="fa-solid fa-sun" style="color: #F79540"></i> -->
+                    <i class="fa-solid fa-clouds" style="color: #146C94"></i>
+                    <span class="condition">Cloudy</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <form action="#" id="locationInput">
+                <input type="text" class="search" placeholder="Search Loaction...">
+                <button type="submit" class="submit">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+
+            <ul class="cities">
+                <li class="city">Multan</li>
+                <li class="city">Islamabad</li>
+                <li class="city">Peshawar</li>
+                <li class="city">Lahore</li>
+            </ul>
+
+            <ul class="details">
+                <h4>Weather Details</h4>
+                <li>
+                    <span>Cloudy</span>
+                    <span class="cloud">89%</span>
+                </li>
+                <li>
+                    <span>Humidity</span>
+                    <span class="humidity">64%</span>
+                </li>
+                <li>
+                    <span>Wind</span>
+                    <span class="wind">8km/h</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</body>
+
+<script>
+    const app = document.querySelector('.weather-app');
+    const temp = document.querySelector('.temp');
+    const dateOutput = document.querySelector('.date');
+    const timeOutput = document.querySelector('.time');
+    const conditionOutput = document.querySelector('.condition');
+    const nameOutput = document.querySelector('.name');
+    const icon = document.querySelector('.icon');
+    const cloudOutput = document.querySelector('.cloud');
+    const humidityOutput = document.querySelector('.humidity');
+    const windOutput = document.querySelector('.wind');
+    const form = document.querySelector('#locationInput');
+    const search = document.querySelector('.search');
+    const btn = document.querySelector('.submit');
+    const cities = document.querySelector('.city');
+
+    // default city name when the web opens
+    let cityInput = "Karachi";
+
+    // adding click event to each city in panel
+    cities.forEach((city)=>{
+        city.addEventListener('click', (e)=>{
+            cityInput = e.target.innerHTML;
+            fetchWeatherData();
+            app.style.opacity = "0";
+        });
+    })
+
+    form.addEventListener('submit', (e)=>{
+        if(search.value.lenght = 0){
+            alert('Please enter a city name!');
+        }else{
+            cityInput = search.value;
+            fetchWeatherData();
+            search.value = "";
+            app.style.opacity = "0";
+        }
+        e.preventDefault();
+    })
+
+    function dayOfTheWeek(day, month, year){
+        const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        return weekdays[new Data(`${day}/${month}/${yaer}`).getDay()];
+    };
+
+    function fetchWeatherData(){
+        fetch(`http://api.weatherapi.com/v1/current.json?key=34b8ae96be34918131d83767c66a818c=${cityInput}`)
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            temp.innerHTML = data.current.temp_c + "&#176";
+            conditionOutput.innerHTML = data.current.condition.text;
+            const date = data.location.localtime;
+            const y = parseInt(date.substr(0, 4)); 
+            const m = parseInt(date.substr(5, 2)); 
+            const d = parseInt(date.substr(8, 2));
+            const time = parseInt(date.substr(11));
+            dateOutput.innerHTML = `${dayOfTheWeek(d, m, y)} ${d}, ${m}, ${y}`;
+            timeOutput.innerHTML = time;
+            nameOutput.innerHTML = data.location.name;
+            
+            const iconId = data.current.condition.icon.substr("//cdn.weatherapi.com/weather/64x64/".length);
+            icon.src = "./pics/" +iconId;
+
+            cloudOutput.innerHTML = data.current.cloud + "%";
+            humidityOutput.innerHTML = data.current.humidity + "%";
+            windOutput.innerHTML = data.current.wind_kph + "km/h";
+
+            let timOfDay = "day";
+            const code = data.current.condition.code;
+            if(!data.current.is_day){
+                timeOfDay = "night";
+            }
+            if(code == 1000){
+                app.style.backgroundImage = `url(./pics/night.jpg)`;
+                btn.style.background = "#e5ba92";
+                if(timeOfDay == "night"){
+                    btn.style.background = "#181e27";
+                }
+            }
+            else if(
+                code == 1003 ||
+                code == 1006 ||
+                code == 1009 ||
+                code == 1030 ||
+                code == 1069 ||
+                code == 1087 ||
+                code == 1135 ||
+                code == 1273 ||
+                code == 1276 ||
+                code == 1279 ||
+                code == 1282
+            ){
+                app.style.backgroundImage = `url(./pics/cloudy.jpg)`;
+                btn.style.background = "#fa6d1b";
+                if(timeOfDay == "night"){
+                    btn.style.background = "#181e27";
+                }
+                else if(
+                    code == 1063 ||
+                    code == 1069 ||
+                    code == 1072 ||
+                    code == 1150 ||
+                    code == 1153 ||
+                    code == 1180 ||
+                    code == 1183 ||
+                    code == 1186 ||
+                    code == 1189 ||
+                    code == 1192 ||
+                    code == 1195 ||
+                    code == 1204 ||
+                    code == 1207 ||
+                    code == 1240 ||
+                    code == 1243 ||
+                    code == 1246 ||
+                    code == 1249 ||
+                    code == 1252 
+                ){
+                    app.style.backgroundImage = `url(./pics/rainy.jpg)`;
+                    btn.style.background = "#647d75";
+                    if(timeOfDay == "night"){
+                        btn.style.background = "#325c80";
+                    }
+                }
+                else{
+                    app.style.backgroundImage = `url(./pics/snowy.jpg)`;
+                    btn.style.background = "#4d72aa";
+                    if(timeOfDay == "night"){
+                        btn.style.background = "#1b1b1b";
+                    }
+                }
+                app.style.opacity = "1";
+            });
+    }
+
+</script>
+</html>
